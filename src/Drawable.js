@@ -195,21 +195,20 @@ class Drawable {
         const modelMatrix = this._uniforms.u_modelMatrix;
 
         twgl.m4.identity(modelMatrix);
-        twgl.m4.translate(modelMatrix, this._position, modelMatrix);
 
-        const rotation = (270 - this._direction) * Math.PI / 180;
+        twgl.m4.scale(modelMatrix, twgl.v3.divScalar(this._scale, 100), modelMatrix);
+        twgl.m4.translate(modelMatrix, twgl.v3.create(this._position[0], this._position[1]), modelMatrix);
+
+        const rotation = (90 - this._direction) * Math.PI / 180;
         twgl.m4.rotateZ(modelMatrix, rotation, modelMatrix);
 
-        // Adjust rotation center relative to the skin.
-        const rotationAdjusted = twgl.v3.subtract(this.skin.rotationCenter, twgl.v3.divScalar(this.skin.size, 2));
-        rotationAdjusted[1] *= -1; // Y flipped to Scratch coordinate.
-        rotationAdjusted[2] = 0; // Z coordinate is 0.
+        const center = twgl.v3.create(-this.skin.rotationCenter[0], this.skin.rotationCenter[1]);
+        twgl.m4.translate(modelMatrix, center, modelMatrix);
 
-        twgl.m4.translate(modelMatrix, rotationAdjusted, modelMatrix);
+        twgl.m4.scale(modelMatrix, twgl.v3.create(this.skin.size[0], this.skin.size[1]), modelMatrix);
+        twgl.m4.translate(modelMatrix, twgl.v3.create(0.5, -0.5), modelMatrix);
 
-        const scaledSize = twgl.v3.divScalar(twgl.v3.multiply(this.skin.size, this._scale), 100);
-        scaledSize[2] = 0; // was NaN because the vectors have only 2 components.
-        twgl.m4.scale(modelMatrix, scaledSize, modelMatrix);
+        twgl.m4.rotateZ(modelMatrix, Math.PI, modelMatrix);
 
         this._transformDirty = false;
     }
